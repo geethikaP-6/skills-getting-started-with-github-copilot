@@ -28,14 +28,27 @@ document.addEventListener("DOMContentLoaded", () => {
           <p>${details.description}</p>
           <p><strong>Schedule:</strong> ${details.schedule}</p>
           <p><strong>Availability:</strong> ${spotsLeft} spots left</p>
-          ${details.participants.length > 0 ? `
-          <div class="participants">
-            <h5>Current Participants:</h5>
-            <ul style="list-style: none;">
-              ${details.participants.map(email => `<li>${email} <button class="delete-btn" data-activity="${name}" data-email="${email}">&times;</button></li>`).join('')}
+
+          ${
+            details.participants.length > 0
+              ? `
+          <div>
+            <p class="participants-title">Participants:</p>
+            <ul class="participants">
+              ${details.participants
+                .map(
+                  (email) => `
+                <li>
+                  ${email}
+                  <button class="delete-btn" data-activity="${name}" data-email="${email}">&times;</button>
+                </li>`
+                )
+                .join("")}
             </ul>
           </div>
-          ` : ''}
+          `
+              : ""
+          }
         `;
 
         activitiesList.appendChild(activityCard);
@@ -94,22 +107,28 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Event listener for delete buttons
-  activitiesList.addEventListener('click', async (event) => {
-    if (event.target.classList.contains('delete-btn')) {
+  activitiesList.addEventListener("click", async (event) => {
+    if (event.target.classList.contains("delete-btn")) {
       const activity = event.target.dataset.activity;
       const email = event.target.dataset.email;
+
       try {
-        const response = await fetch(`/activities/${encodeURIComponent(activity)}/participants/${encodeURIComponent(email)}`, {
-          method: 'DELETE'
-        });
+        const response = await fetch(
+          `/activities/${encodeURIComponent(activity)}/participants/${encodeURIComponent(email)}`,
+          {
+            method: "DELETE",
+          }
+        );
+
         const result = await response.json();
+
         if (response.ok) {
           fetchActivities(); // refresh the list
         } else {
-          alert(result.detail || 'Error unregistering participant');
+          alert(result.detail || "Error unregistering participant");
         }
       } catch (error) {
-        alert('Failed to unregister participant');
+        alert("Failed to unregister participant");
       }
     }
   });
